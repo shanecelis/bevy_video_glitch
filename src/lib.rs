@@ -33,7 +33,7 @@
 use bevy::{
     asset::load_internal_asset,
     core_pipeline::{
-        clear_color::ClearColorConfig, core_3d,
+        core_3d,
         fullscreen_vertex_shader::fullscreen_shader_vertex_state,
     },
     ecs::query::QueryItem,
@@ -68,7 +68,7 @@ pub struct PostProcessPlugin;
 
 impl Plugin for PostProcessPlugin {
     fn build(&self, app: &mut App) {
-        // load_internal_asset!(app, VIDEO_GLITCH_SHADER_HANDLE, "video-glitch.wgsl", Shader::from_wgsl);
+        load_internal_asset!(app, VIDEO_GLITCH_SHADER_HANDLE, "../assets/shaders/video-glitch.wgsl", Shader::from_wgsl);
         app.add_plugins((
             // The settings will be a component that lives in the main world but will
             // be extracted to the render world every frame.
@@ -306,12 +306,10 @@ impl FromWorld for PostProcessPipeline {
         let sampler = render_device.create_sampler(&SamplerDescriptor::default());
 
         // Get the shader handle
-        let shader = world
-            .resource::<AssetServer>()
-            // .load("shaders/post_processing.wgsl");
-            .load("shaders/video-glitch.wgsl");
-            // .load("shaders/vg2.wgsl");
-        // let shader = VIDEO_GLITCH_SHADER_HANDLE.clone();
+        // let shader = world
+        //     .resource::<AssetServer>()
+        //     .load("shaders/video-glitch.wgsl");
+        let shader = VIDEO_GLITCH_SHADER_HANDLE.clone();
 
         let pipeline_id = world
             .resource_mut::<PipelineCache>()
