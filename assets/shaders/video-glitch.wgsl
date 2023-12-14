@@ -9,10 +9,7 @@
 // https://www.shadertoy.com/view/XtK3W3
 
 #import bevy_core_pipeline::fullscreen_vertex_shader::FullscreenVertexOutput
-
-#import bevy_pbr::{
-    mesh_view_bindings::globals,
-}
+#import bevy_render::globals::Globals
 
 @group(0) @binding(0) var screen_texture: texture_2d<f32>;
 @group(0) @binding(1) var texture_sampler: sampler;
@@ -25,6 +22,7 @@ struct PostProcessSettings {
 #endif
 }
 @group(0) @binding(2) var<uniform> settings: PostProcessSettings;
+@group(0) @binding(3) var<uniform> globals: Globals;
 
 fn mod289(x: vec3<f32>) -> vec3<f32> {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -88,7 +86,6 @@ fn rand(co: vec2<f32>) -> f32 {
 // fn mainImage(fragCoord: vec2<f32>,
 //              fragColor: &mut vec4<f32>) {
 @fragment
-
 fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
 // fn fragment(
 //     @builtin(position) position: vec4<f32>,
