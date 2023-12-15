@@ -5,10 +5,7 @@ fn main() {
         .add_systems(Update, (rotate, update_settings))
         .run();
 }
-use bevy::{
-    prelude::*,
-    core_pipeline::clear_color::ClearColorConfig,
-};
+use bevy::{core_pipeline::clear_color::ClearColorConfig, prelude::*};
 use bevy_video_glitch::*;
 
 /// Set up a simple 3D scene
