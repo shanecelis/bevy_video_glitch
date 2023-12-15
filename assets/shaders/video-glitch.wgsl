@@ -11,7 +11,7 @@
 #import bevy_core_pipeline::fullscreen_vertex_shader::FullscreenVertexOutput
 #import bevy_render::globals::Globals
 
-struct PostProcessSettings {
+struct VideoGlitchSettings {
     intensity: f32,
 #ifdef SIXTEEN_BYTE_ALIGNMENT
     // WebGL2 structs must be 16 byte aligned.
@@ -21,7 +21,7 @@ struct PostProcessSettings {
 
 @group(0) @binding(0) var screen_texture: texture_2d<f32>;
 @group(0) @binding(1) var texture_sampler: sampler;
-@group(0) @binding(2) var<uniform> settings: PostProcessSettings;
+@group(0) @binding(2) var<uniform> settings: VideoGlitchSettings;
 @group(0) @binding(3) var<uniform> globals: Globals;
 
 fn mod289(x: vec3<f32>) -> vec3<f32> {

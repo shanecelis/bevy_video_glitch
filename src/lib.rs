@@ -37,9 +37,9 @@ pub const VIDEO_GLITCH_SHADER_HANDLE: Handle<Shader> =
     Handle::weak_from_u128(0x7b1d58197dc34e26b0c69a3c8091a014u128);
 
 /// It is generally encouraged to set up post processing effects as a plugin
-pub struct PostProcessPlugin;
+pub struct VideoGlitchPlugin;
 
-impl Plugin for PostProcessPlugin {
+impl Plugin for VideoGlitchPlugin {
     fn build(&self, app: &mut App) {
         load_internal_asset!(
             app,
@@ -54,11 +54,11 @@ impl Plugin for PostProcessPlugin {
             // This plugin will take care of extracting it automatically.
             // It's important to derive [`ExtractComponent`] on [`PostProcessingSettings`]
             // for this plugin to work correctly.
-            ExtractComponentPlugin::<PostProcessSettings>::default(),
+            ExtractComponentPlugin::<VideoGlitchSettings>::default(),
             // The settings will also be the data used in the shader.
             // This plugin will prepare the component for the GPU by creating a uniform buffer
             // and writing the data to that buffer every frame.
-            UniformComponentPlugin::<PostProcessSettings>::default(),
+            UniformComponentPlugin::<VideoGlitchSettings>::default(),
         ));
 
         // We need to get the render app from the main app
@@ -80,11 +80,11 @@ impl Plugin for PostProcessPlugin {
             //
             // The [`ViewNodeRunner`] is a special [`Node`] that will automatically run the node for each view
             // matching the [`ViewQuery`]
-            .add_render_graph_node::<ViewNodeRunner<PostProcessNode>>(
+            .add_render_graph_node::<ViewNodeRunner<VideoGlitchNode>>(
                 // Specify the name of the graph, in this case we want the graph for 3d
                 core_3d::graph::NAME,
                 // It also needs the name of the node
-                PostProcessNode::NAME,
+                VideoGlitchNode::NAME,
             )
             .add_render_graph_edges(
                 core_3d::graph::NAME,
@@ -92,7 +92,7 @@ impl Plugin for PostProcessPlugin {
                 // This will automatically create all required node edges to enforce the given ordering.
                 &[
                     core_3d::graph::node::TONEMAPPING,
-                    PostProcessNode::NAME,
+                    VideoGlitchNode::NAME,
                     core_3d::graph::node::END_MAIN_PASS_POST_PROCESSING,
                 ],
             );
@@ -106,19 +106,19 @@ impl Plugin for PostProcessPlugin {
 
         render_app
             // Initialize the pipeline
-            .init_resource::<PostProcessPipeline>();
+            .init_resource::<VideoGlitchPipeline>();
     }
 }
 
 // The post process node used for the render graph
 #[derive(Default)]
-struct PostProcessNode;
-impl PostProcessNode {
+struct VideoGlitchNode;
+impl VideoGlitchNode {
     pub const NAME: &'static str = "post_process";
 }
 
 // The ViewNode trait is required by the ViewNodeRunner
-impl ViewNode for PostProcessNode {
+impl ViewNode for VideoGlitchNode {
     // The node needs a query to gather data from the ECS in order to do its rendering,
     // but it's not a normal system so we need to define it manually.
     //
@@ -141,7 +141,7 @@ impl ViewNode for PostProcessNode {
     ) -> Result<(), NodeRunError> {
         // Get the pipeline resource that contains the global data we need
         // to create the render pipeline
-        let post_process_pipeline = world.resource::<PostProcessPipeline>();
+        let post_process_pipeline = world.resource::<VideoGlitchPipeline>();
 
         // The pipeline cache is a cache of all previously created pipelines.
         // It is required to avoid creating a new pipeline each frame,
@@ -155,7 +155,7 @@ impl ViewNode for PostProcessNode {
         };
 
         // Get the settings uniform binding
-        let settings_uniforms = world.resource::<ComponentUniforms<PostProcessSettings>>();
+        let settings_uniforms = world.resource::<ComponentUniforms<VideoGlitchSettings>>();
         let Some(settings_binding) = settings_uniforms.uniforms().binding() else {
             return Ok(());
         };
@@ -184,7 +184,7 @@ impl ViewNode for PostProcessNode {
         let bind_group = render_context.render_device().create_bind_group(
             "post_process_bind_group",
             &post_process_pipeline.layout,
-            // It's important for this to match the BindGroupLayout defined in the PostProcessPipeline
+            // It's important for this to match the BindGroupLayout defined in the VideoGlitchPipeline
             &BindGroupEntries::sequential((
                 // Make sure to use the source view
                 post_process.source,
@@ -221,13 +221,13 @@ impl ViewNode for PostProcessNode {
 
 // This contains global data used by the render pipeline. This will be created once on startup.
 #[derive(Resource)]
-struct PostProcessPipeline {
+struct VideoGlitchPipeline {
     layout: BindGroupLayout,
     sampler: Sampler,
     pipeline_id: CachedRenderPipelineId,
 }
 
-impl FromWorld for PostProcessPipeline {
+impl FromWorld for VideoGlitchPipeline {
     fn from_world(world: &mut World) -> Self {
         let render_device = world.resource::<RenderDevice>();
 
@@ -260,7 +260,7 @@ impl FromWorld for PostProcessPipeline {
                     ty: BindingType::Buffer {
                         ty: bevy::render::render_resource::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
-                        min_binding_size: Some(PostProcessSettings::min_size()),
+                        min_binding_size: Some(VideoGlitchSettings::min_size()),
                     },
                     count: None,
                 },
@@ -325,7 +325,7 @@ impl FromWorld for PostProcessPipeline {
 
 // This is the component that will get passed to the shader
 #[derive(Component, Default, Clone, Copy, ExtractComponent, ShaderType)]
-pub struct PostProcessSettings {
+pub struct VideoGlitchSettings {
     pub intensity: f32,
     // WebGL2 structs must be 16 byte aligned.
     #[cfg(feature = "webgl2")]
