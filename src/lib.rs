@@ -33,10 +33,10 @@ use bevy::{
     },
 };
 
-pub const VIDEO_GLITCH_SHADER_HANDLE: Handle<Shader> =
+// $ cargo install uuid-tools && uuid -o simple
+const VIDEO_GLITCH_SHADER_HANDLE: Handle<Shader> =
     Handle::weak_from_u128(0x7b1d58197dc34e26b0c69a3c8091a014u128);
 
-/// It is generally encouraged to set up post processing effects as a plugin
 pub struct VideoGlitchPlugin;
 
 impl Plugin for VideoGlitchPlugin {
@@ -52,7 +52,7 @@ impl Plugin for VideoGlitchPlugin {
             // be extracted to the render world every frame.
             // This makes it possible to control the effect from the main world.
             // This plugin will take care of extracting it automatically.
-            // It's important to derive [`ExtractComponent`] on [`PostProcessingSettings`]
+            // It's important to derive [`ExtractComponent`] on [`VideoGlitchSettings`]
             // for this plugin to work correctly.
             ExtractComponentPlugin::<VideoGlitchSettings>::default(),
             // The settings will also be the data used in the shader.
@@ -114,7 +114,7 @@ impl Plugin for VideoGlitchPlugin {
 #[derive(Default)]
 struct VideoGlitchNode;
 impl VideoGlitchNode {
-    pub const NAME: &'static str = "post_process";
+    pub const NAME: &'static str = "video_glitch";
 }
 
 // The ViewNode trait is required by the ViewNodeRunner
@@ -141,7 +141,7 @@ impl ViewNode for VideoGlitchNode {
     ) -> Result<(), NodeRunError> {
         // Get the pipeline resource that contains the global data we need
         // to create the render pipeline
-        let post_process_pipeline = world.resource::<VideoGlitchPipeline>();
+        let video_glitch_pipeline = world.resource::<VideoGlitchPipeline>();
 
         // The pipeline cache is a cache of all previously created pipelines.
         // It is required to avoid creating a new pipeline each frame,
@@ -149,7 +149,7 @@ impl ViewNode for VideoGlitchNode {
         let pipeline_cache = world.resource::<PipelineCache>();
 
         // Get the pipeline from the cache
-        let Some(pipeline) = pipeline_cache.get_render_pipeline(post_process_pipeline.pipeline_id)
+        let Some(pipeline) = pipeline_cache.get_render_pipeline(video_glitch_pipeline.pipeline_id)
         else {
             return Ok(());
         };
@@ -182,14 +182,14 @@ impl ViewNode for VideoGlitchNode {
         // The only way to have the correct source/destination for the bind_group
         // is to make sure you get it during the node execution.
         let bind_group = render_context.render_device().create_bind_group(
-            "post_process_bind_group",
-            &post_process_pipeline.layout,
+            "video_glitch_bind_group",
+            &video_glitch_pipeline.layout,
             // It's important for this to match the BindGroupLayout defined in the VideoGlitchPipeline
             &BindGroupEntries::sequential((
                 // Make sure to use the source view
                 post_process.source,
                 // Use the sampler created for the pipeline
-                &post_process_pipeline.sampler,
+                &video_glitch_pipeline.sampler,
                 // Set the settings binding
                 settings_binding.clone(),
                 global_uniforms,
@@ -198,7 +198,7 @@ impl ViewNode for VideoGlitchNode {
 
         // Begin the render pass
         let mut render_pass = render_context.begin_tracked_render_pass(RenderPassDescriptor {
-            label: Some("post_process_pass"),
+            label: Some("video_glitch_pass"),
             color_attachments: &[Some(RenderPassColorAttachment {
                 // We need to specify the post process destination view here
                 // to make sure we write to the appropriate texture.
@@ -233,7 +233,7 @@ impl FromWorld for VideoGlitchPipeline {
 
         // We need to define the bind group layout used for our pipeline
         let layout = render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-            label: Some("post_process_bind_group_layout"),
+            label: Some("video_glitch_bind_group_layout"),
             entries: &[
                 // The screen texture
                 BindGroupLayoutEntry {
@@ -291,7 +291,7 @@ impl FromWorld for VideoGlitchPipeline {
             .resource_mut::<PipelineCache>()
             // This will add the pipeline to the cache and queue it's creation
             .queue_render_pipeline(RenderPipelineDescriptor {
-                label: Some("post_process_pipeline".into()),
+                label: Some("video_glitch_pipeline".into()),
                 layout: vec![layout.clone()],
                 // This will setup a fullscreen triangle for the vertex state
                 vertex: fullscreen_shader_vertex_state(),
@@ -324,10 +324,31 @@ impl FromWorld for VideoGlitchPipeline {
 }
 
 // This is the component that will get passed to the shader
-#[derive(Component, Default, Clone, Copy, ExtractComponent, ShaderType)]
+#[derive(Component, Clone, Copy, ExtractComponent, ShaderType)]
 pub struct VideoGlitchSettings {
+    /// Set the intensity of this glitch effect from [0, 1]. By default it has a
+    /// value of 1.
     pub intensity: f32,
+    /// This shader uses a color aberration matrix C in the following way: The
+    /// first column `C[0] . color` selects the primary color, which is used to
+    /// mix the other two. In practice this means one will not see the primary
+    /// color in the color aberrations but will instead see traces of the
+    /// secondary colors: `C[1] . color` and `C[2] . color`.
+    ///
+    /// The default value is an identity matrix, which specifies red as the
+    /// primary color. Typically this matrix will be a doubly stochastic matrix
+    /// meaning the columns and rows each sum to 1.
+    pub color_aberration: Mat3,
     // WebGL2 structs must be 16 byte aligned.
     #[cfg(feature = "webgl2")]
-    pub webgl2_padding: Vec3,
+    webgl2_padding: Vec2,
+}
+
+impl Default for VideoGlitchSettings {
+    fn default() -> Self {
+        Self {
+            intensity: 1.0,
+            color_aberration: Mat3::IDENTITY,
+        }
+    }
 }

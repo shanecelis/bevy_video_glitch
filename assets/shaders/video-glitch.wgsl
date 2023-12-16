@@ -12,10 +12,11 @@
 #import bevy_render::globals::Globals
 
 struct VideoGlitchSettings {
-    intensity: f32,
+    intensity: f32, // 4
+    color_aberration: mat3x3<f32>, // 9 * 4
 #ifdef SIXTEEN_BYTE_ALIGNMENT
     // WebGL2 structs must be 16 byte aligned.
-    _webgl2_padding: vec3<f32>
+    _webgl2_padding: vec2<u32>
 #endif
 }
 
@@ -38,9 +39,9 @@ fn permute(x: vec3<f32>) -> vec3<f32> {
 
 fn snoise(v: vec2<f32>) -> f32 {
     let C: vec4<f32> = vec4<f32>(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
-                                  0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
-                                  -0.577350269189626, // -1.0 + 2.0 * C.x
-                                  0.024390243902439); // 1.0 / 41.0
+                                 0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
+                                -0.577350269189626,  // -1.0 + 2.0 * C.x
+                                 0.024390243902439); // 1.0 / 41.0
 
     // First corner
     var i: vec2<f32> = floor(v + dot(v, C.yy));
@@ -82,17 +83,10 @@ fn rand(co: vec2<f32>) -> f32 {
     return fract(sin(dot(co.xy, vec2<f32>(12.9898, 78.233))) * 43758.5453);
 }
 
-// [[stage(fragment)]]
-// fn mainImage(fragCoord: vec2<f32>,
-//              fragColor: &mut vec4<f32>) {
 @fragment
-fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
-// fn fragment(
-//     @builtin(position) position: vec4<f32>,
-//     #import bevy_sprite::mesh2d_vertex_output
-// ) -> @location(0) vec4<f32> {
-    // let uv: vec2<f32> = fragCoord.xy / iResolution.xy;
-    let uv = in.uv; //coords_to_viewport_uv(position.xy, view.viewport);
+fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32>
+{
+    let uv = in.uv;
     let time: f32 = globals.time * 2.0;
 
     // Create large, incidental noise waves
@@ -100,12 +94,11 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
 
     // Offset by smaller, constant noise waves
     noise = noise + (snoise(vec2<f32>(time * 10.0, uv.y * 2.4)) - 0.5) * 0.15;
+    noise *= settings.intensity;
 
     // Apply the noise as x displacement for every line
     let xpos: f32 = uv.x - noise * noise * 0.25;
-    // fragColor = textureSample(iChannel0, vec2<f32>(xpos, uv.y));
     let texColor: vec4<f32> = textureSample(screen_texture, texture_sampler, vec2<f32>(xpos, uv.y));
-
 
     // Mix in some random interference for lines
     var fragColor = mix(texColor.rgb, vec3<f32>(rand(vec2<f32>(uv.y * time))), noise * 0.3);
@@ -114,11 +107,16 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
     if (floor(uv.y * 0.25 % 2.0) == 0.0) {
         fragColor *= 1.0 - (0.15 * noise);
     }
+    let C = settings.color_aberration;
+    let primary = dot(C[0], fragColor);
+    // let primary = settings.color_indices[0];
+    // let secondary = settings.color_indices[1];
+    // let tertiary = settings.color_indices[2];
 
     // Shift green/blue channels (using the red channel)
-    // fragColor.g = mix(fragColor.r, textureSample(iChannel0, vec2<f32>(xpos + noise * 0.05, uv.y)).g, 0.25);
-    fragColor.g = mix(fragColor.r, textureSample(screen_texture, texture_sampler, vec2<f32>(xpos + noise * 0.05, uv.y)).g, 0.25);
-    // fragColor.b = mix(fragColor.r, textureSample(iChannel0, vec2<f32>(xpos - noise * 0.05, uv.y)).b, 0.25);
-    fragColor.b = mix(fragColor.r, textureSample(screen_texture, texture_sampler, vec2<f32>(xpos - noise * 0.05, uv.y)).b, 0.25);
+    fragColor =
+        C[0] * primary +
+        C[1] * mix(primary, dot(textureSample(screen_texture, texture_sampler, vec2<f32>(xpos + noise * 0.05, uv.y)).rgb, C[1]), 0.25) +
+        C[2] * mix(primary, dot(textureSample(screen_texture, texture_sampler, vec2<f32>(xpos - noise * 0.05, uv.y)).rgb, C[2]), 0.25);
     return vec4<f32>(fragColor, texColor.a);
 }
