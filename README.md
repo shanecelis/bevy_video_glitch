@@ -4,6 +4,8 @@ This crate provides a post processing video glitch effect for the [bevy game eng
 
 ![Cube example of video glitch](assets/movies/video-glitch.mp4)
 
+https://github.com/shanecelis/bevy_video_glitch/raw/master/assets/movies/video-glitch.mp4
+
 # Install
 
 ``` sh
