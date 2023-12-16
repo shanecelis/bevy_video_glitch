@@ -2,9 +2,7 @@
 
 This crate provides a post processing video glitch effect for the [bevy game engine](https://bevyengine.org). 
 
-![Cube example of video glitch](https://github.com/shanecelis/bevy_video_glitch/raw/master/assets/movies/video-glitch.mp4)
-
-
+https://github.com/shanecelis/bevy_video_glitch/assets/54390/95100192-b1eb-4797-bce7-0c71b4f842f4
 
 # Install
 
