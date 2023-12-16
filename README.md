@@ -1,6 +1,8 @@
 # bevy_video_glitch
 
-This crate provides a post processing video glitch effect for the bevy game engine. 
+This crate provides a post processing video glitch effect for the [bevy game engine](https://bevyengine.org). 
+
+![Cube example of video glitch](assets/movies/video-glitch.mp4)
 
 # Install
 
@@ -29,3 +31,21 @@ app.add_plugins(VideoGlitchPlugin)
 ```
 
 # Example
+
+Run the example like so:
+
+``` sh
+cargo run --example cube
+```
+
+This will show a rotating cube like the one shown at the beginning of this README.
+
+# License
+
+This crate is licensed under MIT License or the Apache License 2.0.
+
+# Acknowlegments
+
+* [Video Glitch](https://www.shadertoy.com/view/XtK3W3) by [dyvoid](https://www.shadertoy.com/user/dyvoid).
+
+* [Post Processing](https://github.com/bevyengine/bevy/blob/v0.12.1/examples/shader/post_processing.rs) example from [bevy](https://bevyengine.org), which I wrote a series of toots about [here](https://mastodon.gamedev.place/@shanecelis/111583689226043395).
