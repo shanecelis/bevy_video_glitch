@@ -1,8 +1,12 @@
 # bevy_video_glitch
+![Maintenance](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
+[![CI](https://github.com/shanecelis/bevy_video_glitch/actions/workflows/main.yml/badge.svg)](https://github.com/shanecelis/bevy_video_glitch/actions)
+  [![crates-io](https://img.shields.io/crates/v/bevy_video_glitch.svg)](https://crates.io/crates/bevy_video_glitch)
+  [![api-docs](https://docs.rs/bevy_video_glitch/badge.svg)](https://docs.rs/bevy_video_glitch)
 
 This crate provides a post processing video glitch effect for the [bevy game engine](https://bevyengine.org). 
 
-https://github.com/shanecelis/bevy_video_glitch/assets/54390/95100192-b1eb-4797-bce7-0c71b4f842f4
+![Cube example](https://github.com/shanecelis/bevy_video_glitch/assets/54390/95100192-b1eb-4797-bce7-0c71b4f842f4)
 
 # Install
 
@@ -14,7 +18,7 @@ cargo add bevy_video_glitch
 
 ## Add plugin to app
 ``` rust
-app.add_plugins(VideoGlitchPlugin)
+app.add_plugins(bevy_video_glitch::VideoGlitchPlugin)
 ```
 
 ## Add settings to camera
@@ -23,7 +27,7 @@ app.add_plugins(VideoGlitchPlugin)
     commands.spawn((
         Camera3dBundle::default(),
         // This component is also used to determine on which camera to run the post processing effect.
-        VideoGlitchSettings {
+        bevy_video_glitch::VideoGlitchSettings {
             intensity: 1.0,
             color_aberration: Mat3::IDENTITY
         },
