@@ -26,13 +26,14 @@ fn setup(
             ..default()
         },
         // Add the setting to the camera.
-        // This component is also used to determine on which camera to run the post processing effect.
+        //
+        // This component is also used to determine on which camera to run the
+        // post processing effect.
         VideoGlitchSettings {
             intensity: 0.02,
             color_aberration: Mat3::from_cols_array(&[0.5, 0.5, 0.0,
                                                       0.0, 0.5, 0.5,
                                                       0.5, 0.0, 0.5]).transpose(),
-            // color_indices: bevy::math::uvec3(1, 2, 0),
             ..default()
         },
     ));
@@ -69,13 +70,10 @@ fn rotate(time: Res<Time>, mut query: Query<&mut Transform, With<Rotates>>) {
 fn update_settings(mut settings: Query<&mut VideoGlitchSettings>, time: Res<Time>) {
     for mut setting in &mut settings {
         let mut intensity = time.elapsed_seconds();
-        // Make it loop periodically
+        // Make it loop periodically.
         intensity = intensity.sin();
-        // Remap it to 0..1 because the intensity can't be negative
+        // Remap it to 0..1 because the intensity can't be negative.
         intensity = intensity * 0.5 + 0.5;
-        // Scale it to a more reasonable level
-        // intensity *= 0.015;
-
         // Set the intensity.
         //
         // This will then be extracted to the render world and uploaded to the
