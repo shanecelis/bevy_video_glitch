@@ -18,7 +18,7 @@ cargo add bevy_video_glitch
 
 ## Add plugin to app
 ```compile
-# use bevy::prelude::*;
+use bevy::prelude::*;
 fn main() {
     App::new()
         .add_plugins(bevy_video_glitch::VideoGlitchPlugin)
@@ -29,7 +29,7 @@ fn main() {
 ## Add settings to camera
 
 ```compile
-# use bevy::prelude::*;
+use bevy::prelude::*;
 fn setup(mut commands: Commands) {
     commands.spawn((
         Camera3dBundle::default(),
