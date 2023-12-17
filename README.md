@@ -17,13 +17,20 @@ cargo add bevy_video_glitch
 # Usage
 
 ## Add plugin to app
-``` rust
-app.add_plugins(bevy_video_glitch::VideoGlitchPlugin)
+```
+# use bevy::prelude::*;
+fn main() {
+    App::new()
+        .add_plugins(bevy_video_glitch::VideoGlitchPlugin)
+        .run()
+}
 ```
 
 ## Add settings to camera
 
-``` rust
+```compile
+# use bevy::prelude::*;
+fn setup(mut commands: Commands) {
     commands.spawn((
         Camera3dBundle::default(),
         // This component is also used to determine on which camera to run the post processing effect.
