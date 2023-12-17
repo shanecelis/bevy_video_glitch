@@ -1,6 +1,6 @@
 # bevy_video_glitch
 ![Maintenance](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
-[![CI](https://github.com/shanecelis/bevy_video_glitch/actions/workflows/main.yml/badge.svg)](https://github.com/shanecelis/bevy_video_glitch/actions)
+[![CI](https://github.com/shanecelis/bevy_video_glitch/actions/workflows/rust.yml/badge.svg)](https://github.com/shanecelis/bevy_video_glitch/actions)
   [![crates-io](https://img.shields.io/crates/v/bevy_video_glitch.svg)](https://crates.io/crates/bevy_video_glitch)
   [![api-docs](https://docs.rs/bevy_video_glitch/badge.svg)](https://docs.rs/bevy_video_glitch)
 
