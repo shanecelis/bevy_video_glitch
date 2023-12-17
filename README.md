@@ -17,7 +17,7 @@ cargo add bevy_video_glitch
 # Usage
 
 ## Add plugin to app
-```
+```compile
 # use bevy::prelude::*;
 fn main() {
     App::new()
