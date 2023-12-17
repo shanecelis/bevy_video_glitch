@@ -46,7 +46,7 @@ This will show a rotating cube like the one shown at the beginning of this READM
 
 # License
 
-This crate is licensed under MIT License or the Apache License 2.0.
+This crate is licensed under the MIT License or the Apache License 2.0.
 
 # Acknowlegments
 
