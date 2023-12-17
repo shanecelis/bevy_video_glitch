@@ -1,7 +1,7 @@
 [package]
 name = "bevy_video_glitch"
 description = "A video glitch effect for bevy"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/shanecelis/bevy_video_glitch"
