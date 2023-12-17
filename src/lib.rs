@@ -29,7 +29,7 @@ use bevy::{
 };
 
 // $ cargo install uuid-tools && uuid -o simple
-const VIDEO_GLITCH_SHADER_HANDLE: Handle<Shader> =
+pub const VIDEO_GLITCH_SHADER_HANDLE: Handle<Shader> =
     Handle::weak_from_u128(0x7b1d58197dc34e26b0c69a3c8091a014u128);
 
 pub struct VideoGlitchPlugin;
