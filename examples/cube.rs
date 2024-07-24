@@ -1,4 +1,4 @@
-use bevy::{core_pipeline::clear_color::ClearColorConfig, prelude::*};
+use bevy::prelude::*;
 use bevy_video_glitch::*;
 
 fn main() {
@@ -20,8 +20,8 @@ fn setup(
         Camera3dBundle {
             transform: Transform::from_translation(Vec3::new(0.0, 0.0, 5.0))
                 .looking_at(Vec3::default(), Vec3::Y),
-            camera_3d: Camera3d {
-                clear_color: ClearColorConfig::Custom(Color::WHITE),
+            camera: Camera {
+                clear_color: Color::WHITE.into(),
                 ..default()
             },
             ..default()
@@ -42,8 +42,8 @@ fn setup(
     // cube
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
-            material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
+            mesh: meshes.add(Mesh::from(Cuboid::from_length(1.0))),
+            material: materials.add(Color::srgb(0.8, 0.7, 0.6)),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),
             ..default()
         },
