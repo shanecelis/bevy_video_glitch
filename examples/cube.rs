@@ -32,10 +32,8 @@ fn setup(
         // post processing effect.
         VideoGlitchSettings {
             intensity: 0.02,
-            color_aberration: Mat3::from_cols_array(&[0.5, 0.5, 0.0,
-                                                      0.0, 0.5, 0.5,
-                                                      0.5, 0.0, 0.5]).transpose(),
-            ..default()
+            color_aberration: Mat3::from_cols_array(&[0.5, 0.5, 0.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.5])
+                .transpose(),
         },
     ));
 
