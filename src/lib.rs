@@ -2,10 +2,14 @@
 #![doc = include_str!("../README.md")]
 use bevy::{
     asset::load_internal_asset,
-    core_pipeline::{core_3d, fullscreen_vertex_shader::fullscreen_shader_vertex_state},
+    core_pipeline::{
+                    core_2d::graph::{Core2d, Node2d},
+                    core_3d::graph::{Core3d, Node3d},
+                    fullscreen_vertex_shader::fullscreen_shader_vertex_state},
     ecs::query::QueryItem,
     prelude::*,
     render::{
+
         extract_component::{
             ComponentUniforms, ExtractComponent, ExtractComponentPlugin, UniformComponentPlugin,
         },
@@ -42,7 +46,9 @@ impl Plugin for VideoGlitchPlugin {
             "../assets/shaders/video-glitch.wgsl",
             Shader::from_wgsl
         );
-        app.add_plugins((
+        app
+            .register_type::<VideoGlitchSettings>()
+            .add_plugins((
             // The settings will be a component that lives in the main world but will
             // be extracted to the render world every frame.
             // This makes it possible to control the effect from the main world.
@@ -77,19 +83,24 @@ impl Plugin for VideoGlitchPlugin {
             // matching the [`ViewQuery`]
             .add_render_graph_node::<ViewNodeRunner<VideoGlitchNode>>(
                 // Specify the name of the graph, in this case we want the graph for 3d
-                core_3d::graph::Core3d,
+                Core3d,
                 // It also needs the name of the node
                 VideoGlitchLabel,
             )
             .add_render_graph_edges(
-                core_3d::graph::Core3d,
+                Core3d,
                 // Specify the node ordering.
                 // This will automatically create all required node edges to enforce the given ordering.
                 (
-                    core_3d::graph::Node3d::Tonemapping,
+                    Node3d::Tonemapping,
                     VideoGlitchLabel,
-                    core_3d::graph::Node3d::EndMainPassPostProcessing,
+                    Node3d::EndMainPassPostProcessing,
                 ),
+            )
+            .add_render_graph_node::<ViewNodeRunner<VideoGlitchNode>>(Core2d, VideoGlitchLabel)
+            .add_render_graph_edges(
+                Core2d,
+                (Node2d::EndMainPass, VideoGlitchLabel, Node2d::Tonemapping),
             );
     }
 
@@ -336,7 +347,8 @@ impl FromWorld for VideoGlitchPipeline {
 }
 
 // This is the component that will get passed to the shader
-#[derive(Component, Clone, Copy, ExtractComponent, ShaderType)]
+#[derive(Component, Reflect, Clone, Copy, ExtractComponent, ShaderType)]
+#[reflect(Component, Default)]
 pub struct VideoGlitchSettings {
     /// Set the intensity of this glitch effect from [0, 1]. By default it has a
     /// value of 1.
