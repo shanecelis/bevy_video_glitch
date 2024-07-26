@@ -3,13 +3,13 @@
 use bevy::{
     asset::load_internal_asset,
     core_pipeline::{
-                    core_2d::graph::{Core2d, Node2d},
-                    core_3d::graph::{Core3d, Node3d},
-                    fullscreen_vertex_shader::fullscreen_shader_vertex_state},
+        core_2d::graph::{Core2d, Node2d},
+        core_3d::graph::{Core3d, Node3d},
+        fullscreen_vertex_shader::fullscreen_shader_vertex_state,
+    },
     ecs::query::QueryItem,
     prelude::*,
     render::{
-
         extract_component::{
             ComponentUniforms, ExtractComponent, ExtractComponentPlugin, UniformComponentPlugin,
         },
@@ -46,9 +46,7 @@ impl Plugin for VideoGlitchPlugin {
             "../assets/shaders/video-glitch.wgsl",
             Shader::from_wgsl
         );
-        app
-            .register_type::<VideoGlitchSettings>()
-            .add_plugins((
+        app.register_type::<VideoGlitchSettings>().add_plugins((
             // The settings will be a component that lives in the main world but will
             // be extracted to the render world every frame.
             // This makes it possible to control the effect from the main world.
